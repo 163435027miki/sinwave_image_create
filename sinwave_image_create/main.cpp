@@ -24,7 +24,8 @@ int rows;					//c•
 int half_rows;				//‰¡•/2.¬”“_ˆÈ‰ºØ‚èÌ‚Ä
 int half_cols;				//c•/2.¬”“_ˆÈ‰ºØ‚èÌ‚Ä
 int bold;					//sin”g‚Ì‘¾‚³
-int correction;				//bold‚ÌŠï”‹ô”‚ÌC³‚É—p‚¢‚é
+int correction;				//bold‚ÌŠï”‹ô”‚ÌC³‚É—p‚¢‚é]
+int backgroundcolor;		//”wŒi‰æ‘f‚ÌF
 double degree;				//sin”g‚ğ‰ñ“]‚³‚¹‚éŠp“x@[‹]
 int step;					//sin”g‚ğ‰ñ“]‚³‚¹‚éŠp“x‚Ì‚İ•
 double sin_frequency;		//sin”g‚Ìü”g”D3k:0.070313 , 10k:0.046875 , 100k:0.015625
@@ -42,10 +43,11 @@ int main() {
 
 	cols=256;				//‰¡•
 	rows=256;				//c•
-	sin_frequency=0.015625;	//sin”g‚Ìü”g”D3k:0.070313 , 10k:0.046875 , 100k:0.015625
-	degree=3;				//sin”g‚ğ‰ñ“]‚³‚¹‚éŠp“x@[‹]
-	step=121;				//sin”g‚ğ‰ñ“]‚³‚¹‚éŠp“x‚Ì‚İ•
-	bold=2;					//sin”g‚Ì‘¾‚³
+	sin_frequency=0.0234375;	//sin”g‚Ìü”g”D3k:0.1328125 , 10k:0.0703125 , 100k:0.0234375
+	degree=45;				//sin”g‚ğ‰ñ“]‚³‚¹‚éŠp“x@[‹]
+	step=9;				//sin”g‚ğ‰ñ“]‚³‚¹‚éŠp“x‚Ì‚İ•
+	bold=3;					//sin”g‚Ì‘¾‚³
+	backgroundcolor=255;		//”wŒi‚ÌF
 	
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,16 +58,20 @@ int main() {
 	printf("‰¡•F%d.pixelCc•F%d.pixel\n",cols,rows);
 	printf("‹óŠÔü”g”f= %f\n‰ñ“]Šp“x %f [‹]\nŠp“x‚İstep = %d\n‘¾‚³ = %d\n",sin_frequency,degree,step,bold);
 
-	sprintf(filename_output,"%soutput_image.csv",date_directory);
+	sprintf(filename_output,"%soutput_image.csv",date_directory);	//o—Í‚·‚écsvƒtƒ@ƒCƒ‹‚ÌƒfƒBƒŒƒNƒgƒŠ
+
 	//sin”gì¬‚Ì”z—ñ‚Ì“®“IŠm•Û
 	std::vector<std::vector<double>>input_sin;
+	std::vector<std::vector<double>>output_sin;
 	std::vector<std::vector<int>>flag_pixel_origin;
 	std::vector<std::vector<int>>flag_pixel;
 	input_sin.resize(rows);
+	output_sin.resize(rows);
 	flag_pixel_origin.resize(rows);
 	flag_pixel.resize(rows);
 	for(i=0;i<rows;++i){
 		input_sin[i].resize(cols);
+		output_sin[i].resize(cols);
 		flag_pixel_origin[i].resize(cols);
 		flag_pixel[i].resize(cols);
 	}
@@ -75,33 +81,54 @@ int main() {
 		for(i=0;i<cols;++i){
 			input_sin[i][j]=255;
 			flag_pixel_origin[i][j]=0;
+			output_sin[i][j]=0;
 		}
 	}
 
+	//‰æ‘œ‚ğ”wŒiF‚Å“h‚è‚Â‚Ô‚µ
+	for(j=0;j<rows;++j){
+		for(i=0;i<cols;++i){
+			output_sin[i][j]=backgroundcolor;
+		}
+	}
+
+	//‰æ‘œ‚Ì’†S“_‚ğ‹‚ß‚é
 	half_rows=rows/2;			//¬”“_ˆÈ‰ºØ‚èÌ‚Ä
 	half_cols=cols/2;			//¬”“_ˆÈ‰ºØ‚èÌ‚Ä
 
 	if(bold%2==0){correction=0;}else{correction=1;};	//ü‚Ì‘¾‚³‚ğŠï”‹ô”‚Åê‡•ª‚¯
 
+	//int J=0;
+	//float J2=1;
+
 	//sin”g‚ğ‰æ‘œ‚ğì¬i‰¡•‚Ì”¼•ªD0‹•”•ª‚Ì‚İ‚Ìì¬)
 	for(j=half_rows-(bold/2)+1;j<=half_rows+(bold/2)+correction;++j){
+	/*
+	for(j=0;j<=rows;++j){	
+		J=j+1;	
+		if(J %3 ==0){J2=J2*-1;}
+		if(J2>0.5){
+		*/
 		for(i=half_cols;i<cols;++i){
+		//for(i=0;i<cols;++i){
 		
 		flag_pixel_origin[i][j]=1;		//sin”g‚ğ“ü—Í‚µ‚½flag
-		flag_pixel[i][j]=1;
+		//flag_pixel[i][j]=1;
 
-		input_sin[i][j]=(sin(2*PI*sin_frequency*i+(PI/2))+1)*180; //0~255‚Åsin”g‚ğ•\Œ»
+		//input_sin[i][j]=((sin(2*PI*sin_frequency*i+PI/2)+1)*128); //0~255‚Åsin”g‚ğ•\Œ»
+		input_sin[i][j]=(((sin(2*PI*sin_frequency*i)+1)*77)+50); //50~204‚Åsin”g‚ğ•\Œ»
 
-		//lÌŒÜ“ü
+		//lÌŒÜ“ü‚µ‚Ä256æ~’²•\Œ»
 		if(input_sin[i][j] -(double)(int)input_sin[i][j] < 0.5 ){
 			input_sin[i][j] = (double)(int)input_sin[i][j];
 		}else{
 			input_sin[i][j] = (double)(int)(input_sin[i][j]+0.9);
 		}
 
+		//256æ~’²•\Œ»
 		if(input_sin[i][j]>255)input_sin[i][j]=255;
 		if(input_sin[i][j]<0)input_sin[i][j]=0;
-
+	//	}//’Ç‰Á
 		//printf("%d %d : %f\n",i,j,input_sin[i][j]);
 		}
 	}
@@ -112,8 +139,8 @@ int main() {
 			for(i=0;i<cols;++i){
 				if(flag_pixel_origin[i][j] == 1){
 					//À•W‚Ì‰ñ“]
-					x2=(i-cols/2-1)*cos(degree*k*PI/180)-(j-rows/2-1)*sin(degree*k*PI/180)+cols/2-1;
-					y2=(i-cols/2-1)*sin(degree*k*PI/180)+(j-rows/2-1)*cos(degree*k*PI/180)+rows/2-1;
+					x2=(i-cols/2-1)*cos(degree*k*PI/180)-(j-rows/2-1)*sin(degree*k*PI/180)+(cols/2-1);
+					y2=(i-cols/2-1)*sin(degree*k*PI/180)+(j-rows/2-1)*cos(degree*k*PI/180)+(rows/2-1);
 
 					//lÌŒÜ“ü
 					if(x2 -(double)(int)x2 < 0.5 )x2 = (double)(int)x2; else x2 = (double)(int)(x2+0.9);
@@ -121,8 +148,9 @@ int main() {
 
 					//”z—ñ‚É“ü—Í
 					if(flag_pixel_origin[x2][y2]==0){
-						input_sin[x2][y2]=input_sin[i][j];
+						output_sin[x2][y2]=input_sin[i][j];
 						flag_pixel[x2][y2]=1;
+						//if(k==step-1)input_sin[i][j]=backgroundcolor;
 					}
 
 				}
@@ -134,26 +162,26 @@ int main() {
 	for(k=0;k<2;++k){
 		for(j=1;j<rows-1;++j){
 			for(i=1;i<cols-1;++i){
-				if(flag_pixel[i-1][j] != 0 && flag_pixel[i][j-1] != 0 && flag_pixel[i][j+1] != 0 && flag_pixel[i+1][j] != 0 && input_sin[i][j]==255){
+				if(flag_pixel[i-1][j] != 0 && flag_pixel[i][j-1] != 0 && flag_pixel[i][j+1] != 0 && flag_pixel[i+1][j] != 0 && output_sin[i][j]==backgroundcolor){
 					flag_pixel[i][j]=1;
-					input_sin[i][j]=(input_sin[i-1][j]+input_sin[i][j-1]+input_sin[i][j+1]+input_sin[i+1][j])/4;
+					output_sin[i][j]=(output_sin[i-1][j]+output_sin[i][j-1]+output_sin[i][j+1]+output_sin[i+1][j])/4;
 
 					//lÌŒÜ“ü
-					if(input_sin[i][j] -(double)(int)input_sin[i][j] < 0.5 )input_sin[i][j] = (double)(int)input_sin[i][j]; else input_sin[i][j] = (double)(int)(input_sin[i][j]+0.9);
-					if(input_sin[i][j]>255)input_sin[i][j]=255;
-					if(input_sin[i][j]<0)input_sin[i][j]=0;
+					if(output_sin[i][j] -(double)(int)output_sin[i][j] < 0.5 )output_sin[i][j] = (double)(int)output_sin[i][j]; else output_sin[i][j] = (double)(int)(output_sin[i][j]+0.9);
+					if(output_sin[i][j]>255)output_sin[i][j]=255;
+					if(output_sin[i][j]<0)output_sin[i][j]=0;
 
 				}
 			}
 		}
 	}
-
+	
 	//csvƒtƒ@ƒCƒ‹‚Ö‚Ì‘‚«‚İ
 	if((fp_output=fopen(filename_output,"w"))==NULL){printf("output_image.csvƒtƒ@ƒCƒ‹‚ªŠJ‚¯‚Ü‚¹‚ñ");exit(1);}
 
 	for(j=0;j<rows;++j){
 		for(i=0;i<cols;++i){
-			fprintf(fp_output,"%f,",input_sin[i][j]);
+			fprintf(fp_output,"%f,",output_sin[i][j]);
 		}
 		fprintf(fp_output,"\n");
 	}
